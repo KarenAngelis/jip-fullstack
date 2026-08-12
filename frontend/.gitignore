@@ -1,0 +1,33 @@
+# ----------------------------
+# Dependências
+# ----------------------------
+node_modules/
+**/node_modules/
+
+# ----------------------------
+# Builds e caches
+# ----------------------------
+.next/
+**/.next/
+dist/
+**/dist/
+build/
+**/build/
+out/
+**/out/
+.cache/
+**/.cache/
+.turbo/
+**/.turbo/
+.vercel/
+**/.vercel/
+coverage/
+**/coverage/
+
+# ----------------------------
+# Env e arquivos do sistema
+# ----------------------------
+.env*
+*.log
+.DS_Store
+Thumbs.db

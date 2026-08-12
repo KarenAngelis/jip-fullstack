@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+      "@app/*": ["./app/*"],
+      "@components/*": ["./components/*"],
+      "@pages/*": ["./app/*"], // Se quiser manter esse alias
+      "@contexts/*": ["./contexts/*"], // só mantenha se a pasta existir
+      "@services/*": ["./services/*"], // só mantenha se a pasta existir
+      "@styles/*": ["./styles/*"],
+      "@lib/*": ["./lib/*"],
+      "@hooks/*": ["./hooks/*"],
+      "@utils/*": ["./lib/utils/*"], // se quiser apontar direto para utils.ts
+      "@types/*": ["./types/*"],
+      "@supabase/*": ["./supabase/*"],
+      "@assets/*": ["./assets/*"]
+    },
+    "target": "ES2017"
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "hooks/useTitles.ts"
+  ],
+  "exclude": ["node_modules"]
+}
