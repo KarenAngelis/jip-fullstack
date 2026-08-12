@@ -40,6 +40,20 @@ frontend/  Aplicação web em Next.js
 backend/   API, regras de negócio, modelos, serviços e migrações
 ```
 
+## Arquitetura
+
+```mermaid
+flowchart LR
+    U[Usuário] --> W[Next.js + React]
+    W -->|REST + JWT| A[FastAPI]
+    A --> DB[(PostgreSQL)]
+    A --> AI[Serviço de IA]
+    A --> EXT[Notícias, tendências, YouTube e Reddit]
+    A --> PDF[Relatórios em PDF]
+```
+
+O frontend concentra a experiência e os dashboards. A API organiza autenticação, regras de negócio e integrações em routers, services, schemas e models.
+
 ## Execução local
 
 O projeto depende de serviços externos que podem não estar mais disponíveis. Para estudo do código, configure apenas as integrações que deseja utilizar.
@@ -68,7 +82,10 @@ Preencha o `.env` localmente. Nunca envie credenciais reais ao Git.
 
 Esta recuperação foi criada a partir de uma cópia limpa, sem o histórico dos repositórios originais. Foram excluídos arquivos de ambiente, bancos locais, caches, configurações de editor e dados de execução.
 
+## Qualidade
+
+O GitHub Actions executa instalação limpa, verificação de tipos e build do frontend a cada push e pull request. A inclusão de testes automatizados de regras de negócio permanece como evolução planejada.
+
 ## Autoria
 
 Desenvolvido por [Karen Angelis](https://github.com/KarenAngelis).
-
