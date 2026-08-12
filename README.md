@@ -84,7 +84,7 @@ Esta recuperação foi criada a partir de uma cópia limpa, sem o histórico dos
 
 ## Qualidade
 
-O GitHub Actions executa instalação limpa, verificação de tipos e build do frontend a cada push e pull request. A inclusão de testes automatizados de regras de negócio permanece como evolução planejada.
+O GitHub Actions executa instalação limpa e build do frontend a cada push e pull request. A correção integral do typecheck e a inclusão de testes automatizados de regras de negócio permanecem como evoluções planejadas.
 
 ## Autoria
 

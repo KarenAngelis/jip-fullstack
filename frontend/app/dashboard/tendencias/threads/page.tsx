@@ -42,6 +42,7 @@ export default function ThreadsTrendsPage() {
   console.error("Erro ao buscar dados do Threads:", err);
 } finally {
   setIsLoading(false);
+}
 };
 
   const handleSubmit = (event: FormEvent) => {
