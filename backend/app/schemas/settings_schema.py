@@ -22,11 +22,16 @@ class SettingsBase(BaseModel):
 
     media_url: Optional[HttpUrl | str] = None
 
+class SettingsInput(SettingsBase):
+    """Client input cannot select the owning account."""
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
+
 class SettingsCreate(SettingsBase):
     user_id: int
 
 class SettingsUpdate(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     person_type: Optional[PersonTypeLiteral] = None
     display_name: Optional[constr(strip_whitespace=True, min_length=2, max_length=120)] = None

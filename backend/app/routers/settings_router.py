@@ -7,7 +7,7 @@ from app.database.database import get_db
 from app.dependencies.auth import get_current_active_user  # o mesmo usado no seu auth_router.py
 
 from app.schemas.auth_schema import UserResponse  # já usado nas suas rotas /me
-from app.schemas.settings_schema import SettingsCreate, SettingsUpdate, SettingsOut
+from app.schemas.settings_schema import SettingsCreate, SettingsInput, SettingsUpdate, SettingsOut
 from app.services.settings_service import SettingsService
 
 router = APIRouter(prefix="/settings", tags=["settings"])
@@ -24,14 +24,14 @@ def get_my_settings(
 
 @router.put("/me", response_model=SettingsOut)
 def save_my_settings(
-    body: dict,  # cliente NÃO envia user_id; vem do token
+    body: SettingsInput,  # user_id comes exclusively from the verified token
     current_user: UserResponse = Depends(get_current_active_user),
     db: Session = Depends(get_db),
 ):
     """
     PUT completo SEM user_id no body.
     """
-    payload = SettingsCreate(user_id=current_user.id, **body)
+    payload = SettingsCreate(user_id=current_user.id, **body.model_dump())
     return SettingsService.upsert(db, payload)
 
 @router.patch("/me", response_model=SettingsOut)

@@ -84,7 +84,7 @@ Esta recuperação foi criada a partir de uma cópia limpa, sem o histórico dos
 
 ## Qualidade
 
-O GitHub Actions executa instalação limpa e build do frontend a cada push e pull request. A correção integral do typecheck e a inclusão de testes automatizados de regras de negócio permanecem como evoluções planejadas.
+O GitHub Actions executa instalação limpa e build do frontend a cada push e pull request. O workflow de segurança do backend também executa testes de autenticação, expiração de JWT e isolamento das configurações entre usuários, com banco de testes descartável. Veja [como executar e o escopo dos testes](docs/SECURITY_TESTS.md). A correção integral do typecheck e a cobertura das demais regras de negócio permanecem como evoluções planejadas.
 
 ## Autoria
 

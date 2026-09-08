@@ -1,23 +1,4 @@
-"""
-app/routers/auth_router.py
-
-Rotas de autenticação de usuários.
-
-🚨 Alteração importante:
-- O token JWT gerado **não tem mais tempo de expiração**.
-- Se quiser que o token expire (sessão temporária), reative a lógica de timedelta em /login.
-- Como não expira, aumenta o risco se o token for roubado → em produção, considere refresh tokens.
-
-Dependências:
-- Usa AuthService (app/services/auth_service.py) para criar usuário, autenticar e gerar tokens.
-- O retorno do AuthService.create_access_token agora não recebe `expires_delta`.
-
-Rotas:
-- POST /register     → Cria novo usuário (email + senha).
-- POST /login        → Faz login e retorna token permanente + dados do usuário.
-- GET  /me           → Retorna usuário autenticado via token.
-- GET  /verify-token → Valida token informado no header Authorization.
-"""
+"""User registration, login and expiring Bearer-token validation."""
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -61,26 +42,26 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
 )
 async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
     """
-    Autentica usuário e retorna token de acesso **sem expiração**.
+    Autentica usuário e retorna token de acesso com expiração.
     
     - **email**: Email do usuário
     - **password**: Senha do usuário
     
-    Retorna token JWT (sem expiração) para usar nas próximas requisições.
+    Retorna token JWT com expiração para usar nas próximas requisições.
     """
     try:
         user = AuthService.authenticate_user(
             db, user_credentials.email, user_credentials.password
         )
         
-        if not user:
+        if not user or not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Email ou senha incorretos",
                 headers={"WWW-Authenticate": "Bearer"},
             )
         
-        # Token permanente (sem tempo de expiração)
+        # Token com expiração configurável.
         access_token = AuthService.create_access_token(
             data={"sub": user.email}
         )
@@ -121,6 +102,6 @@ async def get_me(current_user: UserResponse = Depends(get_current_active_user)):
 )
 async def verify_token(current_user: UserResponse = Depends(get_current_active_user)):
     """
-    Verifica se o token ainda é válido (mesmo sem expiração).
+    Verifica se o token ainda é válido.
     """
-    return {"message": "Token válido", "user": current_user}
+    return {"message": "Token válido", "user": UserResponse.model_validate(current_user)}
