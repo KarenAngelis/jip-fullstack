@@ -1,0 +1,14 @@
+# Isolated auth/settings suite; runtime bounds match requirements.txt.
+fastapi>=0.115,<0.117
+SQLAlchemy>=2.0,<3
+python-jose[cryptography]>=3.3,<4
+passlib[bcrypt]>=1.7,<2
+bcrypt==4.0.1
+python-dotenv>=1.0
+databases>=0.9,<1
+email-validator>=2.1,<3
+python-multipart>=0.0.9
+httpx>=0.28,<0.29
+# Test-only dependencies; SQLite avoids external credentials/services.
+aiosqlite>=0.20,<1
+pytest>=8,<9

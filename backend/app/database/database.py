@@ -26,6 +26,8 @@ def ensure_sslmode(url: str) -> str:
     Se já houver sslmode, mantém.
     """
     p = urlparse(url)
+    if not p.scheme.startswith("postgresql"):
+        return url
     qs = parse_qs(p.query)
     if p.scheme.startswith("postgresql") and "sslmode" not in qs:
         qs["sslmode"] = ["require"]

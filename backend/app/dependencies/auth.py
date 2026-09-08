@@ -28,7 +28,7 @@ def get_current_user(
 ) -> User:
     """
     Lê o header Authorization: Bearer <token>, valida o JWT e retorna o usuário ativo no banco.
-    Mantém compatibilidade: AuthService.verify_token espera sub=email (sem expiração).
+    AuthService.verify_token valida assinatura, expiração, emissor e audiência.
     """
     # Header ausente ou malformado
     if not credentials or not credentials.credentials:
@@ -38,7 +38,7 @@ def get_current_user(
     if (credentials.scheme or "").lower() != "bearer":
         raise unauthorized_exc
 
-    # Decodifica token (sem expiração no seu cenário)
+    # Decodifica e valida o token.
     token_data = AuthService.verify_token(credentials.credentials)
     if token_data is None or not token_data.email:
         raise unauthorized_exc

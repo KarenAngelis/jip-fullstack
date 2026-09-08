@@ -19,13 +19,15 @@ from ..schemas.auth_schema import UserCreate, TokenData
 # -------------------------
 # Configurações
 # -------------------------
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "sua-chave-secreta-super-segura-aqui-mude-em-producao"
-)
+SECRET_KEY = os.getenv("SECRET_KEY", "")
+if len(SECRET_KEY) < 32:
+    raise RuntimeError("SECRET_KEY must contain at least 32 characters")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+if ACCESS_TOKEN_EXPIRE_MINUTES <= 0:
+    raise RuntimeError("ACCESS_TOKEN_EXPIRE_MINUTES must be positive")
 ALGORITHM = "HS256"
-ISSUER = os.getenv("JWT_ISS", "jip-api")   # opcional
-AUDIENCE = os.getenv("JWT_AUD", "jip-clients")  # opcional
+ISSUER = os.getenv("JWT_ISS", "jip-api")
+AUDIENCE = os.getenv("JWT_AUD", "jip-clients")
 
 # Hash de senha (bcrypt ~60 chars). Ajuste o rounds se quiser mais custo.
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -136,49 +138,35 @@ class AuthService:
 
     @staticmethod
     def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-        """
-        Cria token JWT.
-        *Sem expiração* por padrão, para seu cenário atual.
-        - Adiciona `iat` (emitido em) e `jti` (ID único do token) automaticamente.
-        - Mantém o `sub` que você já envia (email).
-        - `iss` e `aud` são adicionados de forma informativa (não obrigatórios).
-        """
+        """Create a signed, expiring access token for the configured issuer/audience."""
         to_encode = data.copy()
-
-        # Campos úteis para auditoria/possível revogação futura.
         now = datetime.now(timezone.utc)
-        to_encode.setdefault("iat", int(now.timestamp()))
-        to_encode.setdefault("jti", str(uuid4()))
-        to_encode.setdefault("iss", ISSUER)
-        to_encode.setdefault("aud", AUDIENCE)
-
-        # Importante: NÃO definir "exp" (expiração) no seu cenário atual.
-        # Mantemos a assinatura de função aceita 'expires_delta' apenas por compatibilidade.
+        lifetime = expires_delta if expires_delta is not None else timedelta(
+            minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+        to_encode.update({
+            "iat": int(now.timestamp()),
+            "exp": int((now + lifetime).timestamp()),
+            "jti": str(uuid4()),
+            "iss": ISSUER,
+            "aud": AUDIENCE,
+        })
 
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
 
     @staticmethod
     def verify_token(token: str) -> Optional[TokenData]:
-        """
-        Verifica e decodifica token (sem expiração).
-        - Valida assinatura/algoritmo.
-        - Extrai `sub` como e-mail (compatível com seu fluxo atual).
-        Retorna TokenData(email=...) se ok; senão, None.
-        """
+        """Validate signature, expiry, issuer and audience; reject legacy permanent tokens."""
         try:
             payload = jwt.decode(
                 token,
                 SECRET_KEY,
                 algorithms=[ALGORITHM],
-                options={
-                    "verify_signature": True,
-                    "verify_aud": False,  # ajuste pra True se quiser checar AUDIENCE
-                    "verify_iss": False,  # ajuste pra True se quiser checar ISSUER
-                    "verify_exp": False,  # sem expiração
-                },
-                # audience=AUDIENCE,  # habilite se ativar verify_aud
-                # issuer=ISSUER,      # habilite se ativar verify_iss
+                audience=AUDIENCE,
+                issuer=ISSUER,
+                options={"require_exp": True, "require_sub": True,
+                         "require_iss": True, "require_aud": True},
             )
             email = payload.get("sub")
             if not email:
